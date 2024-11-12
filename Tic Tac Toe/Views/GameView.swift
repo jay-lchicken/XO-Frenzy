@@ -17,11 +17,11 @@ struct GameView: View {
                 .font(.largeTitle)
                 .padding()
             
-            if gameResult == nil {
+            if viewModel.gameResult == nil {
                 Text(viewModel.isPlayerXTurn ? "Player X's Turn" : "Player O's Turn")
                     .font(.headline)
             } else {
-                Text(gameResult ?? "")
+                Text(viewModel.gameResult ?? "")
                     .font(.headline)
                     .foregroundColor(.red)
             }
@@ -29,12 +29,12 @@ struct GameView: View {
             ForEach(0..<3) { row in
                 HStack {
                     ForEach(0..<3) { col in
-                        CellView(mark: $board[row][col]) {
+                        CellView(mark: $viewModel.board[row][col]) {
                             
-                            if board[row][col] == "" && gameResult == nil {
-                                board[row][col] = isPlayerXTurn ? "X" : "O"
-                                isPlayerXTurn.toggle()
-                                checkGameResult()
+                            if viewModel.board[row][col] == "" && viewModel.gameResult == nil {
+                                viewModel.board[row][col] = viewModel.isPlayerXTurn ? "X" : "O"
+                                viewModel.isPlayerXTurn.toggle()
+                                viewModel.checkGameResult()
                             }
                         }
                     }
@@ -42,7 +42,7 @@ struct GameView: View {
             }
             
             // Reset Button
-            Button(action: resetGame) {
+            Button(action: viewModel.resetGame) {
                 Text("Reset Game")
                     .padding()
                     .background(Color.blue)
