@@ -9,9 +9,16 @@ import SwiftUI
 
 struct SettingsView: View {
     @ObservedObject var viewModel = SettingsViewViewModel()
-
+    
     var body: some View {
-        
+        Picker("Flavor", selection: $viewModel.xImageName) {
+            Image(systemName: "xmark")
+                .tag("xmark")
+            Image(systemName: "circle")
+                .tag("circle")
+            
+        }
+
     }
 }
 
