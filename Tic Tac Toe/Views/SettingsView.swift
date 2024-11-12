@@ -9,100 +9,62 @@ import SwiftUI
 
 struct SettingsView: View {
     @StateObject var viewModel: SettingsViewViewModel
-    
+    @StateObject var gameViewModel: GameViewViewModel
+    @Environment(\.dismiss) var dismiss
     var body: some View {
-        Picker("Flavor", selection: $viewModel.xImageName) {
-            Image(systemName: "xmark")
+        NavigationView {
+            Form {
+                Section(header: Text("Player 1 Icon Selection").font(.headline)) {
+                    Picker(selection: $viewModel.xImageName, label: Label("X Icon", systemImage: "xmark.circle")) {
+                        ForEach(iconOptions, id: \.self) { icon in
+                            Label(icon, systemImage: icon)
+                                .tag(icon)
+                        }
+                    }
+                    .pickerStyle(WheelPickerStyle()) // Can change style for variety, e.g., menu, segmented
+                }
                 
-                .tag("xmark")
-            Image(systemName: "circle")
-                .tag("circle")
-            Image(systemName: "square")
-                .tag("square")
-            Image(systemName: "scissors")
-                .tag("scissors")
-            Image(systemName: "person.crop.circle.fill.badge.checkmark")
-                .tag("person.crop.circle.fill.badge.checkmark")
-            Image(systemName: "person.crop.circle.badge.checkmark")
-                .tag("person.crop.circle.badge.checkmark")
-            Image(systemName: "star")
-                .tag("star")
-            Image(systemName: "suit.spade")
-                .tag("suit.spade")
-            Image(systemName: "suit.club")
-                .tag("suit.club")
-            Image(systemName: "star.circle")
-                .tag("star.circle")
-            Image(systemName: "flashlight.off.fill")
-                .tag("flashlight.off.fill")
-            Image(systemName: "sun.max")
-                .tag("sun.max")
-            Image(systemName: "moon.stars.fill")
-                .tag("moon.stars.fill")
-            Image(systemName: "eye")
-                .tag("eye")
-            Image(systemName: "hare")
-                .tag("hare")
-            Image(systemName: "guitars")
-                .tag("guitars")
-            Image(systemName: "tortoise")
-                .tag("tortoise")
-            Image(systemName: "ant.circle")
-                .tag("ant.circle")
-            Image(systemName: "cloud.sleet")
-                .tag("cloud.sleet")
-            Image(systemName: "person.crop.circle.badge.checkmark")
-                .tag("person.crop.circle.badge.checkmark")
-            Image(systemName: "location.north.line")
-                .tag("location.north.line")
+                Section(header: Text("Player 2 Icon Selection").font(.headline)) {
+                    Picker(selection: $viewModel.oImageName, label: Label("O Icon", systemImage: "circle")) {
+                        ForEach(iconOptions, id: \.self) { icon in
+                            Label(icon, systemImage: icon)
+                                .tag(icon)
+                        }
+                    }
+                    .pickerStyle(WheelPickerStyle())
+                }
+                Section(header: Text("Coin Flip").font(.headline)){
+                    Text("Heads (Player 1)/ Tails (Player 2) Starts First")
+                    CoinFlip(viewModel: gameViewModel)
+                }
+                Button{
+                    dismiss()
+                }label:{
+                    ZStack{
+                        Capsule()
+                            .fill(Color(red: 27/255.0, green: 20/255.0, blue: 100/255.0).opacity(1))
+                            .frame(width:350, height: 50)
+                        Text("Save")
+                            .font(.title)
+                            .bold()
+                            .foregroundColor(.white)
+                    }
+                    
+                }
+                
+            }
+            .navigationTitle("Settings")
+            .navigationBarTitleDisplayMode(.inline)
+            .accentColor(.red)
         }
-        Picker("Flavor", selection: $viewModel.oImageName) {
-            Image(systemName: "xmark")
-                .tag("xmark")
-            Image(systemName: "circle")
-                .tag("circle")
-            Image(systemName: "square")
-                .tag("square")
-            Image(systemName: "scissors")
-                .tag("scissors")
-            Image(systemName: "person.crop.circle.fill.badge.checkmark")
-                .tag("person.crop.circle.fill.badge.checkmark")
-            Image(systemName: "person.crop.circle.badge.checkmark")
-                .tag("person.crop.circle.badge.checkmark")
-            Image(systemName: "star")
-                .tag("star")
-            Image(systemName: "suit.spade")
-                .tag("suit.spade")
-            Image(systemName: "suit.club")
-                .tag("suit.club")
-            Image(systemName: "star.circle")
-                .tag("star.circle")
-            Image(systemName: "flashlight.off.fill")
-                .tag("flashlight.off.fill")
-            Image(systemName: "sun.max")
-                .tag("sun.max")
-            Image(systemName: "moon.stars.fill")
-                .tag("moon.stars.fill")
-            Image(systemName: "eye")
-                .tag("eye")
-            Image(systemName: "hare")
-                .tag("hare")
-            Image(systemName: "guitars")
-                .tag("guitars")
-            Image(systemName: "tortoise")
-                .tag("tortoise")
-            Image(systemName: "ant.circle")
-                .tag("ant.circle")
-            Image(systemName: "cloud.sleet")
-                .tag("cloud.sleet")
-            Image(systemName: "person.crop.circle.badge.checkmark")
-                .tag("person.crop.circle.badge.checkmark")
-            Image(systemName: "location.north.line")
-                .tag("location.north.line")
-        }
-        .tint(Color.red)
     }
-        
+    
+    private var iconOptions: [String] {
+        [
+            "xmark", "circle", "square", "scissors", "person.crop.circle.fill.badge.checkmark",
+            "person.crop.circle.badge.checkmark", "star", "suit.spade", "suit.club", "star.circle",
+            "flashlight.off.fill", "sun.max", "moon.stars.fill", "eye", "hare", "guitars", "tortoise",
+            "ant.circle", "cloud.sleet", "location.north.line"
+        ]
+    }
 }
-
-
