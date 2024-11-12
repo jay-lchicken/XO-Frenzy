@@ -12,10 +12,8 @@ class GameViewViewModel: ObservableObject{
     @Published var isPlayerXTurn: Bool = true
     @Published var gameResult: String? = nil
     init(){}
-    private func checkGameResult() {
-        // Check for win
+    func checkGameResult() {
         for i in 0..<3 {
-            // Check rows and columns
             if board[i][0] != "" && board[i][0] == board[i][1] && board[i][1] == board[i][2] {
                 gameResult = "\(board[i][0]) Wins!"
                 return
@@ -25,7 +23,6 @@ class GameViewViewModel: ObservableObject{
                 return
             }
         }
-        // Check diagonals
         if board[0][0] != "" && board[0][0] == board[1][1] && board[1][1] == board[2][2] {
             gameResult = "\(board[0][0]) Wins!"
             return
@@ -40,7 +37,7 @@ class GameViewViewModel: ObservableObject{
         }
     }
     
-    private func resetGame() {
+     func resetGame() {
         board = Array(repeating: Array(repeating: "", count: 3), count: 3)
         isPlayerXTurn = true
         gameResult = nil

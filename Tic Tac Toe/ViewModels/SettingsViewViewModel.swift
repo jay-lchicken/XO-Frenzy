@@ -7,5 +7,9 @@
 
 import Foundation
 class SettingsViewViewModel: ObservableObject{
+    @Published var xImageName: String = "xmark"
+    @Published var oImageName: String = "omark"
+    
     init(){}
+    
 }

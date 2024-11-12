@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct GameView: View {
-    @State var viewModel = GameViewViewModel()
+    @StateObject var viewModel = GameViewViewModel()
     
     
     var body: some View {
@@ -31,6 +31,7 @@ struct GameView: View {
                     ForEach(0..<3) { col in
                         CellView(mark: $viewModel.board[row][col]) {
                             
+                            
                             if viewModel.board[row][col] == "" && viewModel.gameResult == nil {
                                 viewModel.board[row][col] = viewModel.isPlayerXTurn ? "X" : "O"
                                 viewModel.isPlayerXTurn.toggle()
@@ -40,8 +41,6 @@ struct GameView: View {
                     }
                 }
             }
-            
-            // Reset Button
             Button(action: viewModel.resetGame) {
                 Text("Reset Game")
                     .padding()
@@ -50,6 +49,7 @@ struct GameView: View {
                     .cornerRadius(10)
             }
             .padding()
+            
         }
     }
     
