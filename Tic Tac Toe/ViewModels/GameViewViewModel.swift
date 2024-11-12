@@ -8,9 +8,9 @@
 import SwiftUI
 
 class GameViewViewModel: ObservableObject{
-    @Published private var board: [[String]] = Array(repeating: Array(repeating: "", count: 3), count: 3)
-    @Published private var isPlayerXTurn: Bool = true
-    @Published private var gameResult: String? = nil
+    @Published var board: [[String]] = Array(repeating: Array(repeating: "", count: 3), count: 3)
+    @Published var isPlayerXTurn: Bool = true
+    @Published var gameResult: String? = nil
     init(){}
     private func checkGameResult() {
         // Check for win
