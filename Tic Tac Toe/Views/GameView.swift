@@ -17,6 +17,9 @@ struct GameView: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 20) {
+                    Text("XO Frenzy")
+                                           .font(.custom("Lemon Round", size: 50))
+                                           .bold()
                     HStack {
                         ZStack {
                             RoundedRectangle(cornerRadius: 10)
