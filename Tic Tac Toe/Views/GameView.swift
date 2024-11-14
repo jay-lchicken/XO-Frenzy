@@ -5,9 +5,9 @@
 //  Created by Lai Hong Yu on 11/12/24.
 //
 
+
 import SwiftUI
 import AudioToolbox
-
 
 struct GameView: View {
     @StateObject var viewModel: GameViewViewModel
@@ -17,10 +17,6 @@ struct GameView: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 20) {
-                    Text("XO Frenzy")
-                        .font(.custom("Lemon Round", size: 50))
-                        .bold()
-                    
                     HStack {
                         ZStack {
                             RoundedRectangle(cornerRadius: 10)
@@ -60,7 +56,7 @@ struct GameView: View {
                             }
                         }
                     }
-                    
+
                     // Game status and board
                     if viewModel.gameResult == nil {
                         if viewModel.isPlayerXTurn {
@@ -84,7 +80,7 @@ struct GameView: View {
                             .font(.system(size: 30))
                             .foregroundColor(.red)
                     }
-                    
+
                     // Game board
                     ForEach(0..<5) { row in
                         HStack {
@@ -95,45 +91,18 @@ struct GameView: View {
                                         viewModel.isPlayerXTurn.toggle()
                                         viewModel.checkGameResult()
                                         viewModel.actionButtonTwo(SystemSoundID(kSystemSoundID_Vibrate))
-                                        if settingsViewModel.AIOPlayer != "off" {
-                                            if !viewModel.isPlayerXTurn {
-                                                if settingsViewModel.AIOPlayer == "easy"{
-                                                    minn = 4
-                                                }
-                                               
-                                                if settingsViewModel.AIOPlayer == "hard"{
-                                                    minn = 3
-                                                }
-                                                print(minn)
-                                                if let winningMove = findWinningMove(for: "O", requiredMarks: minn) {
-                                                    viewModel.board[winningMove.row][winningMove.col] = "O"
-                                                }
-                                                else if let blockingMove = findWinningMove(for: "X", requiredMarks: minn) {
-                                                    viewModel.board[blockingMove.row][blockingMove.col] = "O"
-                                                }
-                                                else if viewModel.board[2][2] == "" {
-                                                    viewModel.board[2][2] = "O"
-                                                }
-                                                else {
-                                                    var row = Int.random(in: 0..<5)
-                                                    var col = Int.random(in: 0..<5)
-                                                    while viewModel.board[row][col] != "" {
-                                                        row = Int.random(in: 0..<5)
-                                                        col = Int.random(in: 0..<5)
-                                                    }
-                                                    viewModel.board[row][col] = "O"
-                                                }
-                                                viewModel.checkGameResult()
-                                                // Toggle turn
-                                                viewModel.isPlayerXTurn.toggle()
-                                            }
+                                        
+                                        if settingsViewModel.AIOPlayer != "off" && !viewModel.isPlayerXTurn {
+                                            aiMakeMove()
+                                            viewModel.checkGameResult()
+                                            viewModel.isPlayerXTurn.toggle()
                                         }
                                     }
                                 }
                             }
                         }
                     }
-                    
+
                     Button {
                         viewModel.resetGame()
                     } label: {
@@ -147,7 +116,7 @@ struct GameView: View {
                                 .foregroundColor(.white)
                         }
                     }
-                    
+
                     Button {
                         viewModel.isPresented.toggle()
                     } label: {
@@ -160,22 +129,18 @@ struct GameView: View {
                                 .bold()
                                 .foregroundColor(.white)
                         }
-                    }
-                }
+                    }                }
                 .alert(isPresented: $viewModel.showWinningMessage) {
                     Alert(
                         title: Text("Congratulations!"),
                         message: Text(viewModel.gameResult ?? ""),
                         dismissButton: .default(Text("OK"), action: {
-                            print("Reset")
                             viewModel.resetGame()
-                            viewModel.gameResult = nil
-                            
                         })
                     )
                 }
                 .displayConfetti(isActive: $viewModel.showConfetti)
-                .sheet(isPresented: $viewModel.isPresented, onDismiss: {settingsViewModel.save()}) {
+                .sheet(isPresented: $viewModel.isPresented, onDismiss: { settingsViewModel.save() }) {
                     SettingsView(viewModel: settingsViewModel, gameViewModel: viewModel)
                 }
                 .toolbar {
@@ -190,73 +155,117 @@ struct GameView: View {
                     }
                 }
             }
-           
-
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity) // Ensures NavigationStack fills screen
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-    func findWinningMove(for player: String, requiredMarks: Int) -> (row: Int, col: Int)? {
-        // Check rows for a potential move
-        for row in 0..<5 {
-            let emptyCells = viewModel.board[row].enumerated().filter { $0.element == "" }
-            let playerCells = viewModel.board[row].filter { $0 == player }
-            if emptyCells.count == 5 - requiredMarks && playerCells.count >= requiredMarks {
-                return (row, emptyCells[0].offset)
+
+    // AI move logic
+    private func aiMakeMove() {
+        let isHardMode = settingsViewModel.AIOPlayer == "hard"
+        let requiredMarks = isHardMode ? 2 : 3
+
+        // First, check for a winning move or a blocking move
+        if let move = findWinningMove(for: "O", requiredMarks: requiredMarks) {
+            viewModel.board[move.row][move.col] = "O"
+        }else if let move = findWinningMove(for: "X", requiredMarks: requiredMarks) {
+            viewModel.board[move.row][move.col] = "O"
+        }
+        // Center move preference
+        else if viewModel.board[2][2] == "" {
+            viewModel.board[2][2] = "O"
+        }
+        // Random move if no better options
+        else {
+            placeRandomMove()
+        }
+    }
+
+    // Find winning or blocking move
+    private func findWinningMove(for player: String, requiredMarks: Int) -> (row: Int, col: Int)? {
+        let opponent = (player == "X") ? "O" : "X"
+
+        // Check rows, columns, and diagonals
+        for index in 0..<5 {
+            if let rowMove = checkLine(for: player, in: viewModel.board[index], requiredMarks: requiredMarks, lineType: .row, index: index) {
+                return rowMove
+            }
+            let column = (0..<5).map { viewModel.board[$0][index] }
+            if let colMove = checkLine(for: player, in: column, requiredMarks: requiredMarks, lineType: .col, index: index) {
+                return colMove
             }
         }
-        
-        // Check columns for a potential move
-        for col in 0..<5 {
-            var emptyCell: Int?
-            var playerCount = 0
-            for row in 0..<5 {
-                if viewModel.board[row][col] == player {
-                    playerCount += 1
-                } else if viewModel.board[row][col] == "" {
-                    if emptyCell == nil { emptyCell = row }
-                }
-            }
-            if playerCount >= requiredMarks && (5 - playerCount) <= 5 - requiredMarks {
-                if let emptycell = emptyCell{
-                    return (emptycell, col)
-                }
+        return checkDiagonals(for: player, requiredMarks: requiredMarks)
+    }
+
+    // Check row/column logic
+    private func checkLine(for player: String, in line: [String], requiredMarks: Int, lineType: LineType, index: Int) -> (row: Int, col: Int)? {
+        let emptyCells = line.enumerated().filter { $0.element == "" }
+        let playerCells = line.filter { $0 == player }
+
+        if emptyCells.count == 5 - requiredMarks && playerCells.count >= requiredMarks {
+            if lineType == .row {
+                return (index, emptyCells[0].offset)
+            } else if lineType == .col {
+                return (emptyCells[0].offset, index)
             }
         }
-        
-        var emptyCell: Int?
+        return nil
+    }
+
+    // Check diagonals for winning/blocking moves
+    private func checkDiagonals(for player: String, requiredMarks: Int) -> (row: Int, col: Int)? {
+        var emptyCells = [(Int, Int)]()
         var playerCount = 0
+        
+        // Main diagonal
         for i in 0..<5 {
             if viewModel.board[i][i] == player {
                 playerCount += 1
             } else if viewModel.board[i][i] == "" {
-                emptyCell = i
+                emptyCells.append((i, i))
             }
         }
-        if playerCount >= requiredMarks && (5 - playerCount) <= 5 - requiredMarks {
-            if let emptycell = emptyCell{
-                return (emptycell, emptycell)
-            }
+        if emptyCells.count == 5 - requiredMarks && playerCount >= requiredMarks {
+            return emptyCells[0]
         }
-        
-        // Check anti-diagonal for a potential move
-        emptyCell = nil
+
+        // Anti-diagonal
+        emptyCells = []
         playerCount = 0
         for i in 0..<5 {
             if viewModel.board[i][4 - i] == player {
                 playerCount += 1
             } else if viewModel.board[i][4 - i] == "" {
-                emptyCell = i
+                emptyCells.append((i, 4 - i))
             }
         }
-        if playerCount >= requiredMarks && (5 - playerCount) <= 5 - requiredMarks {
-            if let emptycell = emptyCell{
-                return (emptycell, 4 - emptycell)
-            }
+        if emptyCells.count == 5 - requiredMarks && playerCount >= requiredMarks {
+            return emptyCells[0]
         }
-        
-        // No winning or blocking move found
+
         return nil
     }
+
+    // AI random move
+    private func placeRandomMove() {
+        var row = Int.random(in: 0..<5)
+        var col = Int.random(in: 0..<5)
+        while viewModel.board[row][col] != "" {
+            row = Int.random(in: 0..<5)
+            col = Int.random(in: 0..<5)
+        }
+        viewModel.board[row][col] = "O"
+    }
+}
+
+// Enum to clarify line type in AI logic
+enum LineType {
+    case row, col
+}
+
+#Preview {
+    @StateObject var viewModel = GameViewViewModel()
+    GameView(viewModel: viewModel)
 }
 struct CellView: View {
     @StateObject var settingsViewModel : SettingsViewViewModel
@@ -318,10 +327,4 @@ struct CellView: View {
         }
            
     }
-}
-
-
-#Preview {
-    @StateObject var viewModel = GameViewViewModel()
-    GameView(viewModel: viewModel)
 }

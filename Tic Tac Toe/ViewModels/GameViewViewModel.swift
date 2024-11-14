@@ -115,13 +115,17 @@ class GameViewViewModel: ObservableObject {
                         isPlayerXTurn = true
                     }
                     showConfetti.toggle()
-                    if showConfetti {
-                        self.showWinningMessage = true
-                        actionButtonOne(SystemSoundID(kSystemSoundID_Vibrate))
-                        addDelay(seconds: 3) {
-                            self.showConfetti = false
-                        }
-                    }
+                    if showConfetti{
+                                    self.showWinningMessage = true
+
+                                    
+                                    actionButtonOne(SystemSoundID(kSystemSoundID_Vibrate))
+                                    addDelay(seconds: 3, completion: {
+                                        self.gameResult = nil
+                                        self.showConfetti = false
+                                    })
+
+                                }
                     return
                 }
             }
@@ -141,13 +145,17 @@ class GameViewViewModel: ObservableObject {
                         isPlayerXTurn = true
                     }
                     showConfetti.toggle()
-                    if showConfetti {
-                        self.showWinningMessage = true
-                        actionButtonOne(SystemSoundID(kSystemSoundID_Vibrate))
-                        addDelay(seconds: 3) {
-                            self.showConfetti = false
-                        }
-                    }
+                    if showConfetti{
+                                    self.showWinningMessage = true
+
+                                    
+                                    actionButtonOne(SystemSoundID(kSystemSoundID_Vibrate))
+                                    addDelay(seconds: 3, completion: {
+                                        self.gameResult = nil
+                                        self.showConfetti = false
+                                    })
+
+                                }
                     return
                 }
             }
@@ -169,13 +177,17 @@ class GameViewViewModel: ObservableObject {
                         isPlayerXTurn = true
                     }
                     showConfetti.toggle()
-                    if showConfetti {
-                        self.showWinningMessage = true
-                        actionButtonOne(SystemSoundID(kSystemSoundID_Vibrate))
-                        addDelay(seconds: 3) {
-                            self.showConfetti = false
-                        }
-                    }
+                    if showConfetti{
+                                    self.showWinningMessage = true
+
+                                    
+                                    actionButtonOne(SystemSoundID(kSystemSoundID_Vibrate))
+                                    addDelay(seconds: 3, completion: {
+                                        self.gameResult = nil
+                                        self.showConfetti = false
+                                    })
+
+                                }
                     return
                 }
             }
@@ -197,13 +209,17 @@ class GameViewViewModel: ObservableObject {
                         isPlayerXTurn = true
                     }
                     showConfetti.toggle()
-                    if showConfetti {
-                        self.showWinningMessage = true
-                        actionButtonOne(SystemSoundID(kSystemSoundID_Vibrate))
-                        addDelay(seconds: 3) {
-                            self.showConfetti = false
-                        }
-                    }
+                    if showConfetti{
+                                    self.showWinningMessage = true
+
+                                    
+                                    actionButtonOne(SystemSoundID(kSystemSoundID_Vibrate))
+                                    addDelay(seconds: 3, completion: {
+                                        self.gameResult = nil
+                                        self.showConfetti = false
+                                    })
+
+                                }
                     return
                 }
             }
@@ -222,7 +238,6 @@ class GameViewViewModel: ObservableObject {
     func resetGame() {
         board = Array(repeating: Array(repeating: "", count: 5), count: 5) // Updated to 5x5
         isPlayerXTurn = true
-        gameResult = nil
     }
     @IBAction func actionButtonOne(_ sender: Any) {
        AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
