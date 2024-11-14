@@ -5,10 +5,11 @@
 //  Created by Lai Hong Yu on 11/12/24.
 //
 import SwiftUI
+import AudioToolbox
 struct CoinFlip: View {
     @StateObject var viewModel: GameViewViewModel
     @State var flipping = false
-    @State var heads = false
+    @State var heads = true
     @State var tailsCount: Int = 0
     @State var headsCount: Int = 0
     @State var degreesToFlip: Int = 0
@@ -22,7 +23,7 @@ struct CoinFlip: View {
         }
             Button {
                 flipCoin()
-                
+                viewModel.actionButtonThree(SystemSoundID(kSystemSoundID_Vibrate))
             }label: {
                 ZStack{
                     Capsule()
@@ -38,7 +39,7 @@ struct CoinFlip: View {
     
     func flipCoin() {
         withAnimation {
-            let randomNumber = Int.random(in: 5...6)
+            let randomNumber = Int.random(in: 5...100)
             if degreesToFlip > 18000000 {
                 reset()
             }

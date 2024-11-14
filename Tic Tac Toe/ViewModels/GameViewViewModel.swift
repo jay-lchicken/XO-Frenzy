@@ -5,8 +5,30 @@
 //  Created by Lai Hong Yu on 11/12/24.
 //
 import SwiftUI
+import AVKit
+import GameKit
+import DataSave
+import AudioToolbox
+enum PlayerAuthState: String {
+    case authenticating = "Logging in to Game Center..."
+    case unauthenticated = "Please log in to Game Center"
+    case authenticated = ""
+    case error = "There was an error with Game Center"
+    case restricted = "You are not allowed to play in multiplayer games"
+        
+}
 
 class GameViewViewModel: ObservableObject {
+    @Published var audioPlayer: AVAudioPlayer!
+    func addDelay(seconds: Double, completion: @escaping () -> Void) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + seconds) {
+            completion()
+        }
+    }
+    @Published var isGameOver = true
+    @Published var authenticationState = PlayerAuthState.authenticating
+    @Published var musicChoice = "song 3"
+    @Published var showWinningMessage = false
     @Published var player1Wins = 0
     @Published var player2Wins = 0
     @Published var draws = 0
@@ -15,9 +37,67 @@ class GameViewViewModel: ObservableObject {
     @Published var isPlayerXTurn: Bool = true
     @Published var gameResult: String? = nil
     @Published var showConfetti = false
-    init(){
-        self.isPresented = true
+    //Game Manager:
+    var match: GKMatch?
+    var player1 = GKLocalPlayer.local
+    var player2: GKPlayer?
+    var playerUUIDKey = UUID().uuidString
+    var rootViewController: UIViewController?{
+        let windowScence = UIApplication.shared.connectedScenes.first as? UIWindowScene
+        return windowScence?.windows.first?.rootViewController
     }
+    
+    func authenticateUser(){
+        GKLocalPlayer.local.authenticateHandler = {[self]vc, e in
+            if let viewController = vc {
+                rootViewController?.present(viewController, animated: true)
+                return
+            }
+            if let error = e{
+                authenticationState = .error
+                print(error.localizedDescription)
+                return
+            }
+            if player1.isAuthenticated{
+                if player1.isMultiplayerGamingRestricted{
+                    authenticationState = .restricted
+                }else{
+                    authenticationState = .authenticated
+                }
+            }else{
+                authenticationState = .unauthenticated
+            }
+        }
+    }
+    
+    init() {
+        if let musicChoice1 = DataSave.retrieveFromUserDefaults(forKey: "musicChoice", as: String.self) {
+            musicChoice = musicChoice1
+        } else {
+            print("No data found for the given key.")
+        }
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [])
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            print("Failed to set up audio session: \(error.localizedDescription)")
+        }
+
+        if let soundPath = Bundle.main.path(forResource: musicChoice, ofType: "mp3") {
+            do {
+                self.audioPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: soundPath))
+                self.audioPlayer?.numberOfLoops = -1 // Set to loop forever
+                self.audioPlayer?.play()
+            } catch {
+                print("Failed to initialize AVAudioPlayer: \(error.localizedDescription)")
+            }
+        } else {
+            print("Audio file not found in bundle.")
+        }
+        
+        
+        }
+    
     func checkGameResult() {
         for i in 0..<5 {
             // Check rows
@@ -27,17 +107,25 @@ class GameViewViewModel: ObservableObject {
                     player1Wins+=1
                     board = Array(repeating: Array(repeating: "", count: 5), count: 5) // Updated to 5x5
                     isPlayerXTurn = true
-                    gameResult = nil
-                    
+
                 } else {
                     gameResult = "Player 2 Wins!"
                     player2Wins+=1
                     board = Array(repeating: Array(repeating: "", count: 5), count: 5) // Updated to 5x5
                     isPlayerXTurn = true
-                    gameResult = nil
                     
                 }
                 showConfetti.toggle()
+                if showConfetti{
+                    self.showWinningMessage = true
+                    actionButtonOne(SystemSoundID(kSystemSoundID_Vibrate))
+                    addDelay(seconds: 3, completion: {
+                        self.showConfetti = false
+                        
+                    })
+
+                }
+
                 return
             }
             
@@ -48,15 +136,21 @@ class GameViewViewModel: ObservableObject {
                     player1Wins+=1
                     board = Array(repeating: Array(repeating: "", count: 5), count: 5) // Updated to 5x5
                     isPlayerXTurn = true
-                    gameResult = nil
                 } else {
                     gameResult = "Player 2 Wins!"
                     player2Wins+=1
                     board = Array(repeating: Array(repeating: "", count: 5), count: 5) // Updated to 5x5
                     isPlayerXTurn = true
-                    gameResult = nil
                 }
                 showConfetti.toggle()
+                if showConfetti{
+                    self.showWinningMessage = true
+                    actionButtonOne(SystemSoundID(kSystemSoundID_Vibrate))
+                    addDelay(seconds: 3, completion: {
+                        self.showConfetti = false
+                    })
+
+                }
 
                 return
             }
@@ -69,15 +163,22 @@ class GameViewViewModel: ObservableObject {
                 player1Wins+=1
                 board = Array(repeating: Array(repeating: "", count: 5), count: 5) // Updated to 5x5
                 isPlayerXTurn = true
-                gameResult = nil
             } else {
                 gameResult = "Player 2 Wins!"
                 player2Wins+=1
                 board = Array(repeating: Array(repeating: "", count: 5), count: 5) // Updated to 5x5
                 isPlayerXTurn = true
-                gameResult = nil
             }
             showConfetti.toggle()
+            if showConfetti{
+                self.showWinningMessage = true
+
+                actionButtonOne(SystemSoundID(kSystemSoundID_Vibrate))
+                addDelay(seconds: 3, completion: {
+                    self.showConfetti = false
+                })
+
+            }
 
             return
         }
@@ -89,15 +190,24 @@ class GameViewViewModel: ObservableObject {
                 player1Wins+=1
                 board = Array(repeating: Array(repeating: "", count: 5), count: 5) // Updated to 5x5
                 isPlayerXTurn = true
-                gameResult = nil
             } else {
                 gameResult = "Player 2 Wins!"
                 player2Wins+=1
                 board = Array(repeating: Array(repeating: "", count: 5), count: 5) // Updated to 5x5
                 isPlayerXTurn = true
-                gameResult = nil
             }
             showConfetti.toggle()
+            if showConfetti{
+                self.showWinningMessage = true
+
+                
+                actionButtonOne(SystemSoundID(kSystemSoundID_Vibrate))
+                addDelay(seconds: 3, completion: {
+                    self.gameResult = nil
+                    self.showConfetti = false
+                })
+
+            }
 
             return
         }
@@ -108,13 +218,30 @@ class GameViewViewModel: ObservableObject {
             draws+=1
             board = Array(repeating: Array(repeating: "", count: 5), count: 5) // Updated to 5x5
             isPlayerXTurn = true
-            gameResult = nil
+            self.resetGame()
         }
+       
+        
     }
     
     func resetGame() {
         board = Array(repeating: Array(repeating: "", count: 5), count: 5) // Updated to 5x5
         isPlayerXTurn = true
         gameResult = nil
+    }
+    @IBAction func actionButtonOne(_ sender: Any) {
+       AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
+    }
+    @IBAction func actionButtonTwo(_ sender: Any) {
+       let generator = UIImpactFeedbackGenerator(style: .heavy)
+       generator.impactOccurred()
+    }
+    @IBAction func actionButtonThree(_ sender: Any) {
+       let generator = UIImpactFeedbackGenerator(style: .light)
+       generator.impactOccurred()
+    }
+    @IBAction func actionButtonFour(_ sender: Any) {
+       let generator = UIImpactFeedbackGenerator(style: .medium)
+       generator.impactOccurred()
     }
 }
