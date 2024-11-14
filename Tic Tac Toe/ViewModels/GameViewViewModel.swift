@@ -100,128 +100,123 @@ class GameViewViewModel: ObservableObject {
     
     func checkGameResult() {
         for i in 0..<5 {
-            // Check rows
-            if board[i][0] != "" && board[i][0] == board[i][1] && board[i][1] == board[i][2] && board[i][2] == board[i][3] && board[i][3] == board[i][4] {
-                if board[i][0] == "X" {
-                    gameResult = "Player 1 Wins!"
-                    player1Wins+=1
-                    board = Array(repeating: Array(repeating: "", count: 5), count: 5) // Updated to 5x5
-                    isPlayerXTurn = true
-
-                } else {
-                    gameResult = "Player 2 Wins!"
-                    player2Wins+=1
-                    board = Array(repeating: Array(repeating: "", count: 5), count: 5) // Updated to 5x5
-                    isPlayerXTurn = true
-                    
+            // Check rows for 4 in a row
+            for j in 0..<2 { 
+                if board[i][j] != "" && board[i][j] == board[i][j + 1] && board[i][j + 1] == board[i][j + 2] && board[i][j + 2] == board[i][j + 3] {
+                    if board[i][j] == "X" {
+                        gameResult = "Player 1 Wins!"
+                        player1Wins += 1
+                        board = Array(repeating: Array(repeating: "", count: 5), count: 5)
+                        isPlayerXTurn = true
+                    } else {
+                        gameResult = "Player 2 Wins!"
+                        player2Wins += 1
+                        board = Array(repeating: Array(repeating: "", count: 5), count: 5)
+                        isPlayerXTurn = true
+                    }
+                    showConfetti.toggle()
+                    if showConfetti {
+                        self.showWinningMessage = true
+                        actionButtonOne(SystemSoundID(kSystemSoundID_Vibrate))
+                        addDelay(seconds: 3) {
+                            self.showConfetti = false
+                        }
+                    }
+                    return
                 }
-                showConfetti.toggle()
-                if showConfetti{
-                    self.showWinningMessage = true
-                    actionButtonOne(SystemSoundID(kSystemSoundID_Vibrate))
-                    addDelay(seconds: 3, completion: {
-                        self.showConfetti = false
-                        
-                    })
-
-                }
-
-                return
             }
             
-            // Check columns
-            if board[0][i] != "" && board[0][i] == board[1][i] && board[1][i] == board[2][i] && board[2][i] == board[3][i] && board[3][i] == board[4][i] {
-                if board[0][i] == "X" {
-                    gameResult = "Player 1 Wins!"
-                    player1Wins+=1
-                    board = Array(repeating: Array(repeating: "", count: 5), count: 5) // Updated to 5x5
-                    isPlayerXTurn = true
-                } else {
-                    gameResult = "Player 2 Wins!"
-                    player2Wins+=1
-                    board = Array(repeating: Array(repeating: "", count: 5), count: 5) // Updated to 5x5
-                    isPlayerXTurn = true
+            // Check columns for 4 in a row
+            for j in 0..<2 {
+                if board[j][i] != "" && board[j][i] == board[j + 1][i] && board[j + 1][i] == board[j + 2][i] && board[j + 2][i] == board[j + 3][i] {
+                    if board[j][i] == "X" {
+                        gameResult = "Player 1 Wins!"
+                        player1Wins += 1
+                        board = Array(repeating: Array(repeating: "", count: 5), count: 5)
+                        isPlayerXTurn = true
+                    } else {
+                        gameResult = "Player 2 Wins!"
+                        player2Wins += 1
+                        board = Array(repeating: Array(repeating: "", count: 5), count: 5)
+                        isPlayerXTurn = true
+                    }
+                    showConfetti.toggle()
+                    if showConfetti {
+                        self.showWinningMessage = true
+                        actionButtonOne(SystemSoundID(kSystemSoundID_Vibrate))
+                        addDelay(seconds: 3) {
+                            self.showConfetti = false
+                        }
+                    }
+                    return
                 }
-                showConfetti.toggle()
-                if showConfetti{
-                    self.showWinningMessage = true
-                    actionButtonOne(SystemSoundID(kSystemSoundID_Vibrate))
-                    addDelay(seconds: 3, completion: {
-                        self.showConfetti = false
-                    })
+            }
+        }
 
+        // Check main diagonals for 4 in a row
+        for i in 0..<2 {
+            for j in 0..<2 {
+                if board[i][j] != "" && board[i][j] == board[i + 1][j + 1] && board[i + 1][j + 1] == board[i + 2][j + 2] && board[i + 2][j + 2] == board[i + 3][j + 3] {
+                    if board[i][j] == "X" {
+                        gameResult = "Player 1 Wins!"
+                        player1Wins += 1
+                        board = Array(repeating: Array(repeating: "", count: 5), count: 5)
+                        isPlayerXTurn = true
+                    } else {
+                        gameResult = "Player 2 Wins!"
+                        player2Wins += 1
+                        board = Array(repeating: Array(repeating: "", count: 5), count: 5)
+                        isPlayerXTurn = true
+                    }
+                    showConfetti.toggle()
+                    if showConfetti {
+                        self.showWinningMessage = true
+                        actionButtonOne(SystemSoundID(kSystemSoundID_Vibrate))
+                        addDelay(seconds: 3) {
+                            self.showConfetti = false
+                        }
+                    }
+                    return
                 }
-
-                return
             }
         }
         
-        // Check main diagonal
-        if board[0][0] != "" && board[0][0] == board[1][1] && board[1][1] == board[2][2] && board[2][2] == board[3][3] && board[3][3] == board[4][4] {
-            if board[0][0] == "X" {
-                gameResult = "Player 1 Wins!"
-                player1Wins+=1
-                board = Array(repeating: Array(repeating: "", count: 5), count: 5) // Updated to 5x5
-                isPlayerXTurn = true
-            } else {
-                gameResult = "Player 2 Wins!"
-                player2Wins+=1
-                board = Array(repeating: Array(repeating: "", count: 5), count: 5) // Updated to 5x5
-                isPlayerXTurn = true
+        // Check anti-diagonals for 4 in a row
+        for i in 0..<2 {
+            for j in 3..<5 {
+                if board[i][j] != "" && board[i][j] == board[i + 1][j - 1] && board[i + 1][j - 1] == board[i + 2][j - 2] && board[i + 2][j - 2] == board[i + 3][j - 3] {
+                    if board[i][j] == "X" {
+                        gameResult = "Player 1 Wins!"
+                        player1Wins += 1
+                        board = Array(repeating: Array(repeating: "", count: 5), count: 5) // Reset board
+                        isPlayerXTurn = true
+                    } else {
+                        gameResult = "Player 2 Wins!"
+                        player2Wins += 1
+                        board = Array(repeating: Array(repeating: "", count: 5), count: 5) // Reset board
+                        isPlayerXTurn = true
+                    }
+                    showConfetti.toggle()
+                    if showConfetti {
+                        self.showWinningMessage = true
+                        actionButtonOne(SystemSoundID(kSystemSoundID_Vibrate))
+                        addDelay(seconds: 3) {
+                            self.showConfetti = false
+                        }
+                    }
+                    return
+                }
             }
-            showConfetti.toggle()
-            if showConfetti{
-                self.showWinningMessage = true
-
-                actionButtonOne(SystemSoundID(kSystemSoundID_Vibrate))
-                addDelay(seconds: 3, completion: {
-                    self.showConfetti = false
-                })
-
-            }
-
-            return
-        }
-        
-        // Check anti-diagonal
-        if board[0][4] != "" && board[0][4] == board[1][3] && board[1][3] == board[2][2] && board[2][2] == board[3][1] && board[3][1] == board[4][0] {
-            if board[0][4] == "X" {
-                gameResult = "Player 1 Wins!"
-                player1Wins+=1
-                board = Array(repeating: Array(repeating: "", count: 5), count: 5) // Updated to 5x5
-                isPlayerXTurn = true
-            } else {
-                gameResult = "Player 2 Wins!"
-                player2Wins+=1
-                board = Array(repeating: Array(repeating: "", count: 5), count: 5) // Updated to 5x5
-                isPlayerXTurn = true
-            }
-            showConfetti.toggle()
-            if showConfetti{
-                self.showWinningMessage = true
-
-                
-                actionButtonOne(SystemSoundID(kSystemSoundID_Vibrate))
-                addDelay(seconds: 3, completion: {
-                    self.gameResult = nil
-                    self.showConfetti = false
-                })
-
-            }
-
-            return
         }
         
         // Check for a draw
         if !board.flatMap({ $0 }).contains("") {
             gameResult = "It's a Draw!"
-            draws+=1
-            board = Array(repeating: Array(repeating: "", count: 5), count: 5) // Updated to 5x5
+            draws += 1
+            board = Array(repeating: Array(repeating: "", count: 5), count: 5)
             isPlayerXTurn = true
             self.resetGame()
         }
-       
-        
     }
     
     func resetGame() {
