@@ -72,6 +72,7 @@ class GameViewViewModel: ObservableObject {
         if !board.flatMap({ $0 }).contains("") {
             gameResult = "It's a Draw!"
             draws += 1
+            showWinningMessage.toggle()
             resetBoard()
             return
         }
@@ -79,10 +80,10 @@ class GameViewViewModel: ObservableObject {
 
     func updateGameResult(for winner: String) {
         if winner == "X" {
-            gameResult = "Player 1 Wins!"
+            gameResult = "Player X Wins!"
             player1Wins += 1
         } else {
-            gameResult = "Player 2 Wins!"
+            gameResult = "Player O Wins!"
             player2Wins += 1
         }
         
@@ -90,7 +91,7 @@ class GameViewViewModel: ObservableObject {
         showConfetti.toggle()
         if showConfetti {
             showWinningMessage = true
-            self.showConfetti = false
+            showConfetti = false
         }
     }
 

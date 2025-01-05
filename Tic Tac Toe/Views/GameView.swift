@@ -139,6 +139,8 @@ struct GameView: View {
                         message: Text(viewModel.gameResult ?? ""),
                         dismissButton: .default(Text("OK"), action: {
                             viewModel.resetGame()
+                            viewModel.showConfetti.toggle()
+                            viewModel.gameResult = nil
                         })
                     )
                 }

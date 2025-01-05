@@ -120,10 +120,7 @@ class GameViewViewModel: ObservableObject {
 
                                     
                                     actionButtonOne(SystemSoundID(kSystemSoundID_Vibrate))
-                                    addDelay(seconds: 3, completion: {
-                                        self.gameResult = nil
-                                        self.showConfetti = false
-                                    })
+                                   
 
                                 }
                     return
@@ -150,10 +147,7 @@ class GameViewViewModel: ObservableObject {
 
                                     
                                     actionButtonOne(SystemSoundID(kSystemSoundID_Vibrate))
-                                    addDelay(seconds: 3, completion: {
-                                        self.gameResult = nil
-                                        self.showConfetti = false
-                                    })
+                                   
 
                                 }
                     return
@@ -182,10 +176,7 @@ class GameViewViewModel: ObservableObject {
 
                                     
                                     actionButtonOne(SystemSoundID(kSystemSoundID_Vibrate))
-                                    addDelay(seconds: 3, completion: {
-                                        self.gameResult = nil
-                                        self.showConfetti = false
-                                    })
+                                   
 
                                 }
                     return
@@ -214,10 +205,7 @@ class GameViewViewModel: ObservableObject {
 
                                     
                                     actionButtonOne(SystemSoundID(kSystemSoundID_Vibrate))
-                                    addDelay(seconds: 3, completion: {
-                                        self.gameResult = nil
-                                        self.showConfetti = false
-                                    })
+                                   
 
                                 }
                     return
@@ -231,7 +219,12 @@ class GameViewViewModel: ObservableObject {
             draws += 1
             board = Array(repeating: Array(repeating: "", count: 5), count: 5)
             isPlayerXTurn = true
-            self.resetGame()
+            showConfetti.toggle()
+            self.showWinningMessage = true
+
+            
+            actionButtonOne(SystemSoundID(kSystemSoundID_Vibrate))
+           
         }
     }
     
